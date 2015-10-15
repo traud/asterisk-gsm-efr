@@ -1,6 +1,6 @@
 # Asterisk patch for GSM-EFR
 
-Asterisk already supports GSM Full Rate ([GSM-FR](https://tools.ietf.org/html/rfc3551#section-4.5.8)). This patch adds Enhanced Full Rate ([GSM-EFR](http://tools.ietf.org/html/rfc3551#section-4.5.9)).
+Asterisk already supports GSM Full Rate ([GSM-FR](http://tools.ietf.org/html/rfc3551#section-4.5.8)). This patch adds Enhanced Full Rate ([GSM-EFR](http://tools.ietf.org/html/rfc3551#section-4.5.9)).
 
 ## Installing the patch
 
@@ -18,7 +18,7 @@ If you do not want transcoding but pass-through only (because of license issues)
 
     apt-get --assume-yes install libopencore-amrnb-dev
 
-The patch relies on [my AMR patch](/traud/asterisk-amr/). Therefore, you have to apply one of those patches as well:
+The patch relies on [my AMR patch](http://github.com/traud/asterisk-amr). Therefore, you have to apply one of those patches as well:
 
     wget github.com/traud/asterisk-amr/archive/master.zip
     unzip -qq master.zip
