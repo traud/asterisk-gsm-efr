@@ -10,13 +10,13 @@ The patch was built on top of Asterisk 13.6.0. If you use a newer version and th
     wget downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
     tar zxf ./asterisk*
     cd ./asterisk*
-    apt-get --assume-yes install build-essential autoconf libssl-dev libncurses-dev libnewt-dev libxml2-dev libsqlite3-dev uuid-dev libjansson-dev libblocksruntime-dev
+    sudo apt-get --assume-yes install build-essential autoconf libssl-dev libncurses-dev libnewt-dev libxml2-dev libsqlite3-dev uuid-dev libjansson-dev libblocksruntime-dev
 
 Install library:
 
 If you do not want transcoding but pass-through only (because of license issues) please, skip this step. To support transcoding, you’ll need to install OpenCORE AMR, for example in Debian/Ubuntu:
 
-    apt-get --assume-yes install libopencore-amrnb-dev
+    sudo apt-get --assume-yes install libopencore-amrnb-dev
 
 The patch relies on [my AMR patch](http://github.com/traud/asterisk-amr). Therefore, you have to apply one of those patches as well:
 
