@@ -45,12 +45,7 @@ Compile and install:
     sudo make install
 
 ## Testing
-You can test GSM-EFR with the VoIP/SIP client in Google Android (AOSP): All apps → Phone → Options → Settings → Calls → Calling accounts → SIP accounts. I recommend Google Nexus devices because some manufactures do not include that client. Even with those manufactures who include the client, some do not test the built-in VoIP/SIP correctly. Therefore, you might experience degraded voice quality. Actually, this repository was created for Nokia Mobile Phones which support GSM-EFR in VoIP/SIP, like:
-
-* [Nokia Asha 501](http://www.gsmarena.com/nokia_asha_501-5445.php) (Asha Software Platform),
-* [Nokia X3-02](http://n0kvoip.orgfree.com/faq.html) (Nokia Series 40).
-
-Symbian/S60 does not offer GSM-EFR. All these clients support AMR as well. GSM-EFR is the highest AMR mode actually. A paper for [ICASSP 2010](http://research.nokia.com/files/public/%5B11%5D_ICASSP2010_Voice%20Quality%20Evaluation%20of%20Various%20Codecs.pdf) compared several narrow-band codecs. Therefore, please, consider AMR. However in contrast to my AMR module, longer packetization times (`ptime`) are supported here in this module. Furthermore, GSM-EFR does not involve any additional negotiation on the SIP/SDP layer (no fmtp) which should give perfect interoperability.
+You can test GSM-EFR with the VoIP/SIP client in Google Android (AOSP): All apps → Phone → Options → Settings → Calls → Calling accounts → SIP accounts. I recommend Google Nexus devices because some manufactures do not include that client. Even with those manufactures who include the client, some do not test the built-in VoIP/SIP correctly. Therefore, you might experience degraded voice quality. GSM-EFR is the highest AMR mode actually. A paper for [ICASSP 2010](http://research.nokia.com/files/public/%5B11%5D_ICASSP2010_Voice%20Quality%20Evaluation%20of%20Various%20Codecs.pdf) compared several narrow-band codecs. Therefore, please, consider [AMR](http://github.com/traud/asterisk-amr).
 
 ## Thanks goes to
 * teams of the Android Open Source Project (AOSP), OpenCORE AMR, Debian Multimedia, and Ubuntu for providing the library.
