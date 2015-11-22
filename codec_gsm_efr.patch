@@ -34,7 +34,7 @@
 +	.default_ms = 20,
 +	.minimum_bytes = 31,
 +	.samples_count = gsm_efr_samples,
-+	.smooth = 0,
++	.smooth = 1,
 +};
 +
  static int g719_samples(struct ast_frame *frame)
