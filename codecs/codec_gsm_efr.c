@@ -34,7 +34,7 @@ static int lintoefr_new(struct ast_trans_pvt *pvt)
 	const int dtx = 0;
 
 	apvt->state = Encoder_Interface_init(dtx);
-	
+
 	if (NULL == apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the GSM-EFR encoder\n");
 		return -1;
@@ -50,7 +50,7 @@ static int efrtolin_new(struct ast_trans_pvt *pvt)
 	struct efr_coder_pvt *apvt = pvt->pvt;
 
 	apvt->state = Decoder_Interface_init();
-	
+
 	if (NULL == apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the GSM-EFR decoder\n");
 		return -1;
@@ -84,8 +84,8 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 
 	while (pvt->samples >= frame_size) {
 		const int forceSpeech = 0; /* ignored by underlying API anyway */
-		unsigned char* out = pvt->outbuf.uc;
-		const short* speech = apvt->buf + samples;
+		unsigned char *out = pvt->outbuf.uc;
+		const short *speech = apvt->buf + samples;
 		int status; /* result value; either error or output bytes */
 
 		status = Encoder_Interface_Encode(apvt->state, MR122, speech, out, forceSpeech);
@@ -116,7 +116,7 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 			last = current;
 		}
 	}
-	
+
 	/* Move the data at the end of the buffer to the front */
 	if (samples) {
 		memmove(apvt->buf, apvt->buf + samples, pvt->samples * 2);
@@ -130,7 +130,7 @@ static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	struct efr_coder_pvt *apvt = pvt->pvt;
 	const unsigned int frame_size = pvt->t->dst_codec.sample_rate / 50;
 	const int bfi = 0; /* ignored by underlying API anyway */
-	const unsigned char* data = f->data.ptr;
+	const unsigned char *data = f->data.ptr;
 	unsigned char in[32];
 	int i;
 
@@ -241,12 +241,12 @@ static int load_module(void)
 
 	res = ast_register_translator(&efrtolin);
 	res |= ast_register_translator(&lintoefr);
-	
+
 	if (res) {
 		unload_module();
 		return AST_MODULE_LOAD_FAILURE;
 	}
-	
+
 	return AST_MODULE_LOAD_SUCCESS;
 }
 
