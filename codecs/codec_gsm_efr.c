@@ -1,6 +1,6 @@
 /*** MODULEINFO
-	 <depend>amr_nb</depend>
-***/
+	<depend>amr_nb</depend>
+ ***/
 
 #include "asterisk.h"
 
@@ -17,7 +17,9 @@
 #include <opencore-amrnb/interf_dec.h>
 #include <opencore-amrnb/interf_enc.h>
 
-#define BUFFER_SAMPLES 8000 /* 1000 milliseconds */
+#define BUFFER_SAMPLES     8000 /* 1000 milliseconds */
+#define GSM_EFR_SAMPLES    160
+#define GSM_EFR_FRAME_LEN  32
 
 /* Sample frame data */
 #include "asterisk/slin.h"
@@ -25,7 +27,7 @@
 
 struct efr_coder_pvt {
 	void *state; /* May be encoder or decoder */
-	int16_t buf[BUFFER_SAMPLES];
+	short buf[BUFFER_SAMPLES];
 };
 
 static int lintoefr_new(struct ast_trans_pvt *pvt)
@@ -77,44 +79,41 @@ static int lintoefr_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 {
 	struct efr_coder_pvt *apvt = pvt->pvt;
-	const unsigned int frame_size = pvt->t->src_codec.sample_rate / 50;
 	struct ast_frame *result = NULL;
 	struct ast_frame *last = NULL;
 	int samples = 0; /* output samples */
 
-	while (pvt->samples >= frame_size) {
+	while (pvt->samples >= GSM_EFR_SAMPLES) {
+		struct ast_frame *current;
 		const int forceSpeech = 0; /* ignored by underlying API anyway */
 		unsigned char *out = pvt->outbuf.uc;
 		const short *speech = apvt->buf + samples;
-		int status; /* result value; either error or output bytes */
+		int status, i; /* result value; either error or output bytes */
 
 		status = Encoder_Interface_Encode(apvt->state, MR122, speech, out, forceSpeech);
 
-		samples += frame_size;
-		pvt->samples -= frame_size;
+		samples += GSM_EFR_SAMPLES;
+		pvt->samples -= GSM_EFR_SAMPLES;
 
-		if (status != 32) {
+		if (status != GSM_EFR_FRAME_LEN) {
 			ast_log(LOG_ERROR, "Error encoding the GSM-EFR frame\n");
-		} else {
-			struct ast_frame *current;
-			int i;
-
-			out[0] = (0xc0) | (out[1] >> 4);
-			for (i = 1, status = status - 1; i < status; i = i + 1) {
-				out[i] = (out[i] << 4) | (out[i + 1] >> 4);
-			}
-
-			current = ast_trans_frameout(pvt, status, frame_size);
-
-			if (!current) {
-				continue;
-			} else if (last) {
-				AST_LIST_NEXT(last, frame_list) = current;
-			} else {
-				result = current;
-			}
-			last = current;
+			continue;
 		}
+
+		for (i = 0; i < GSM_EFR_FRAME_LEN - 1; i++) {
+			out[i] = (out[i] << 4) | (out[i + 1] >> 4);
+		}
+
+		current = ast_trans_frameout(pvt, GSM_EFR_FRAME_LEN, GSM_EFR_SAMPLES);
+
+		if (!current) {
+			continue;
+		} else if (last) {
+			AST_LIST_NEXT(last, frame_list) = current;
+		} else {
+			result = current;
+		}
+		last = current;
 	}
 
 	/* Move the data at the end of the buffer to the front */
@@ -128,26 +127,31 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 {
 	struct efr_coder_pvt *apvt = pvt->pvt;
-	const unsigned int frame_size = pvt->t->dst_codec.sample_rate / 50;
-	const int bfi = 0; /* ignored by underlying API anyway */
-	const unsigned char *data = f->data.ptr;
-	unsigned char in[32];
-	int i;
+	unsigned char in[GSM_EFR_FRAME_LEN];
+	int x;
 
 	/*
 	 * Decoders expect the "MIME storage format" (RFC 4867 chapter 5) which is
 	 * octet aligned. GSM-EFR is in the bandwidth-efficient mode.
 	 */
+	in[0] = 0x3c; /* AMR mode 7 = GSM-EFR, Quality bit is set */
 
-	for (i = sizeof(in) / sizeof(in[0]) - 1; i >= 1; i = i - 1) {
-		in[i] = (data[i] >> 4) | (data[i - 1] << 4);
+	for (x = 0; x + (GSM_EFR_FRAME_LEN - 1) <= f->datalen; x += (GSM_EFR_FRAME_LEN - 1)) {
+		const int bfi = 0; /* ignored by underlying API anyway */
+		unsigned char *src = f->data.ptr + x;
+		short *dst = pvt->outbuf.i16 + pvt->samples;
+		int i;
+
+		for (i = 1; i < (GSM_EFR_FRAME_LEN - 1); i++) {
+			in[i] = (src[i - 1] << 4) | (src[i] >> 4);
+		}
+		in[i] = (src[i - 1] << 4);
+
+		Decoder_Interface_Decode(apvt->state, in, dst, bfi);
+
+		pvt->samples += GSM_EFR_SAMPLES;
+		pvt->datalen += GSM_EFR_SAMPLES * 2;
 	}
-	in[0] = 7 << 3; /* AMR mode 7 = GSM-EFR */
-
-	Decoder_Interface_Decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bfi);
-
-	pvt->samples += frame_size;
-	pvt->datalen += frame_size * 2;
 
 	return 0;
 }
