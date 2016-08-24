@@ -1,10 +1,10 @@
 # Asterisk patch for GSM-EFR
 
-Asterisk already supports GSM Full Rate ([GSM-FR](http://tools.ietf.org/html/rfc3551#section-4.5.8)). This patch adds Enhanced Full Rate ([GSM-EFR](http://tools.ietf.org/html/rfc3551#section-4.5.9)).
+Asterisk already supports Full Rate ([GSM-FR](http://tools.ietf.org/html/rfc3551#section-4.5.8)). This patch adds Enhanced Full Rate ([GSM-EFR](http://tools.ietf.org/html/rfc3551#section-4.5.9)).
 
 ## Installing the patch
 
-The patch was built on top of Asterisk 13.6.0. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
+The patch was built on top of Asterisk 13.10. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
 
     cd /usr/src/
     wget downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
@@ -41,7 +41,7 @@ Configure your patched Asterisk:
 
 Compile and install:
 
-    make --jobs
+    make
     sudo make install
 
 ## Testing
