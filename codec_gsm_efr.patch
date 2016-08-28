@@ -1,23 +1,16 @@
---- include/asterisk/format_cache.h	(Asterisk 13.6.0)
+--- include/asterisk/format_cache.h	(Asterisk 13.10.0)
 +++ include/asterisk/format_cache.h	(working copy)
-@@ -221,2 +221,7 @@
+@@ -226,2 +226,7 @@
  /*!
-+ * \brief Built-in cached gsm_efr format.
++ * \brief Built-in cached GSM-EFR format.
 + */
 +extern struct ast_format *ast_format_gsm_efr;
 +
 +/*!
-  * \brief Built-in cached t140 format.
---- include/asterisk/format_compatibility.h	(Asterisk 13.6.0)
-+++ include/asterisk/format_compatibility.h	(working copy)
-@@ -67,2 +67,4 @@
- #define AST_FORMAT_SLIN16 (1ULL << 15)
-+/*! GSM-EFR audio (8kHz) */
-+#define AST_FORMAT_GSM_EFR (1ULL << 37)
- /*! G.719 (64 kbps assumed) */
---- main/codec_builtin.c	(Asterisk 13.6.0)
+  * \brief Initialize format cache support within the core.
+--- main/codec_builtin.c	(Asterisk 13.10.0)
 +++ main/codec_builtin.c	(working copy)
-@@ -677,2 +677,20 @@
+@@ -774,2 +774,20 @@
  
 +static int gsm_efr_samples(struct ast_frame *frame)
 +{
@@ -37,55 +30,41 @@
 +	.smooth = 1,
 +};
 +
- static int g719_samples(struct ast_frame *frame)
-@@ -829,2 +895,3 @@
- 	res |= CODEC_REGISTER_AND_CACHE(testlaw);
+ #define CODEC_REGISTER_AND_CACHE(codec) \
+@@ -806,2 +824,4 @@
+ 
 +	res |= CODEC_REGISTER_AND_CACHE(gsm_efr);
- 	res |= CODEC_REGISTER_AND_CACHE(g719);
---- main/format_cache.c	(Asterisk 13.6.0)
++
+ 	res |= CODEC_REGISTER_AND_CACHE(g723);
+--- main/format_cache.c	(Asterisk 13.10.0)
 +++ main/format_cache.c	(working copy)
-@@ -230,2 +230,7 @@
+@@ -220,2 +220,7 @@
  /*!
-+ * \brief Built-in cached gsm_efr format.
++ * \brief Built-in cached GSM-EFR format.
 + */
 +struct ast_format *ast_format_gsm_efr;
 +
 +/*!
   * \brief Built-in cached t140 format.
-@@ -320,2 +335,3 @@
- 	ao2_replace(ast_format_testlaw, NULL);
+@@ -294,2 +299,4 @@
+ 
 +	ao2_replace(ast_format_gsm_efr, NULL);
- 	ao2_replace(ast_format_g719, NULL);
-@@ -402,2 +418,4 @@
++
+ 	ao2_replace(ast_format_g723, NULL);
+@@ -402,2 +409,4 @@
  		ao2_replace(ast_format_testlaw, format);
 +	} else if (!strcmp(name, "gsm_efr")) {
 +		ao2_replace(ast_format_gsm_efr, format);
  	} else if (!strcmp(name, "g719")) {
---- main/format_compatibility.c	(Asterisk 13.6.0)
-+++ main/format_compatibility.c	(working copy)
-@@ -76,2 +76,4 @@
- 		return AST_FORMAT_G719;
-+	} else if (ast_format_cmp(format, ast_format_gsm_efr) == AST_FORMAT_CMP_EQUAL) {
-+		return AST_FORMAT_GSM_EFR;
- 	} else if (ast_format_cmp(format, ast_format_speex16) == AST_FORMAT_CMP_EQUAL) {
-@@ -143,2 +149,4 @@
- 		return AST_FORMAT_G719;
-+	} else if (codec->id == ast_format_get_codec_id(ast_format_gsm_efr)) {
-+		return AST_FORMAT_GSM_EFR;
- 	} else if (codec->id == ast_format_get_codec_id(ast_format_speex16)) {
-@@ -228,2 +240,5 @@
- 		return ast_format_g719;
-+	/*! GSM-EFR audio (8kHz) */
-+	case AST_FORMAT_GSM_EFR:
-+		return ast_format_gsm_efr;
- 	/*! SpeeX Wideband (16kHz) Free Compression */
---- main/rtp_engine.c	(Asterisk 13.6.0)
+--- main/rtp_engine.c	(Asterisk 13.10.0)
 +++ main/rtp_engine.c	(working copy)
-@@ -2146,2 +2146,3 @@
- 	set_next_mime_type(ast_format_siren14, 0, "audio", "G7221", 32000);
+@@ -2201,2 +2201,4 @@
+ 
 +	set_next_mime_type(ast_format_gsm_efr, 0,  "audio", "GSM-EFR", 8000);
- 	set_next_mime_type(ast_format_g719, 0, "audio", "G719", 48000);
-@@ -2186,2 +2189,3 @@
- 	add_static_payload(115, ast_format_siren14, 0);
-+	add_static_payload(113, ast_format_gsm_efr, 0);
- 	add_static_payload(116, ast_format_g719, 0);
++
+	/* Define the static rtp payload mappings */
+@@ -2244,2 +2246,4 @@
+ 	add_static_payload(107, ast_format_opus, 0);
++
++	add_static_payload(-1, ast_format_gsm_efr, 0);
+ 
