@@ -137,7 +137,7 @@ static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	in[0] = 0x3c; /* AMR mode 7 = GSM-EFR, Quality bit is set */
 
 	for (x = 0; x + (GSM_EFR_FRAME_LEN - 1) <= f->datalen; x += (GSM_EFR_FRAME_LEN - 1)) {
-		const int bfi = 0; /* ignored by underlying API anyway */
+		const int bad_frame = 0; /* ignored by underlying API anyway */
 		unsigned char *src = f->data.ptr + x;
 		short *dst = pvt->outbuf.i16 + pvt->samples;
 		int i;
@@ -147,7 +147,7 @@ static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 		}
 		in[i] = (src[i - 1] << 4);
 
-		Decoder_Interface_Decode(apvt->state, in, dst, bfi);
+		Decoder_Interface_Decode(apvt->state, in, dst, bad_frame);
 
 		pvt->samples += GSM_EFR_SAMPLES;
 		pvt->datalen += GSM_EFR_SAMPLES * 2;
