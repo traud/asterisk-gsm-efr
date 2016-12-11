@@ -104,7 +104,7 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 			out[i] = (out[i] << 4) | (out[i + 1] >> 4);
 		}
 
-		current = ast_trans_frameout(pvt, GSM_EFR_FRAME_LEN, GSM_EFR_SAMPLES);
+		current = ast_trans_frameout(pvt, GSM_EFR_FRAME_LEN - 1, GSM_EFR_SAMPLES);
 
 		if (!current) {
 			continue;
