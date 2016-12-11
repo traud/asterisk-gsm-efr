@@ -85,12 +85,12 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 
 	while (pvt->samples >= GSM_EFR_SAMPLES) {
 		struct ast_frame *current;
-		const int forceSpeech = 0; /* ignored by underlying API anyway */
+		const int force_speech = 0; /* ignored by underlying API anyway */
 		unsigned char *out = pvt->outbuf.uc;
 		const short *speech = apvt->buf + samples;
 		int status, i; /* result value; either error or output bytes */
 
-		status = Encoder_Interface_Encode(apvt->state, MR122, speech, out, forceSpeech);
+		status = Encoder_Interface_Encode(apvt->state, MR122, speech, out, force_speech);
 
 		samples += GSM_EFR_SAMPLES;
 		pvt->samples -= GSM_EFR_SAMPLES;
