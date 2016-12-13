@@ -19,7 +19,7 @@
 
 #define BUFFER_SAMPLES     8000 /* 1000 milliseconds */
 #define GSM_EFR_SAMPLES    160
-#define GSM_EFR_FRAME_LEN  32
+#define GSM_EFR_FRAME_LEN  31
 
 /* Sample frame data */
 #include "asterisk/slin.h"
@@ -95,16 +95,16 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 		samples += GSM_EFR_SAMPLES;
 		pvt->samples -= GSM_EFR_SAMPLES;
 
-		if (status != GSM_EFR_FRAME_LEN) {
+		if (status != GSM_EFR_FRAME_LEN + 1) {
 			ast_log(LOG_ERROR, "Error encoding the GSM-EFR frame\n");
 			continue;
 		}
 
-		for (i = 0; i < GSM_EFR_FRAME_LEN - 1; i++) {
+		for (i = 0; i < GSM_EFR_FRAME_LEN; i++) {
 			out[i] = (out[i] << 4) | (out[i + 1] >> 4);
 		}
 
-		current = ast_trans_frameout(pvt, GSM_EFR_FRAME_LEN - 1, GSM_EFR_SAMPLES);
+		current = ast_trans_frameout(pvt, GSM_EFR_FRAME_LEN, GSM_EFR_SAMPLES);
 
 		if (!current) {
 			continue;
@@ -127,7 +127,7 @@ static struct ast_frame *lintoefr_frameout(struct ast_trans_pvt *pvt)
 static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 {
 	struct efr_coder_pvt *apvt = pvt->pvt;
-	unsigned char in[GSM_EFR_FRAME_LEN];
+	unsigned char in[GSM_EFR_FRAME_LEN + 1];
 	int x;
 
 	/*
@@ -136,13 +136,13 @@ static int efrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	 */
 	in[0] = 0x3c; /* AMR mode 7 = GSM-EFR, Quality bit is set */
 
-	for (x = 0; x + (GSM_EFR_FRAME_LEN - 1) <= f->datalen; x += (GSM_EFR_FRAME_LEN - 1)) {
+	for (x = 0; x + GSM_EFR_FRAME_LEN <= f->datalen; x += GSM_EFR_FRAME_LEN) {
 		const int bad_frame = 0; /* ignored by underlying API anyway */
 		unsigned char *src = f->data.ptr + x;
 		short *dst = pvt->outbuf.i16 + pvt->samples;
 		int i;
 
-		for (i = 1; i < (GSM_EFR_FRAME_LEN - 1); i++) {
+		for (i = 1; i < GSM_EFR_FRAME_LEN; i++) {
 			in[i] = (src[i - 1] << 4) | (src[i] >> 4);
 		}
 		in[i] = (src[i - 1] << 4);
