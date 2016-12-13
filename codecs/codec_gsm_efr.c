@@ -187,7 +187,7 @@ static void efrtolin_destroy(struct ast_trans_pvt *pvt)
 static struct ast_translator efrtolin = {
         .name = "efrtolin",
         .src_codec = {
-                .name = "gsm_efr",
+                .name = "gsm-efr",
                 .type = AST_MEDIA_TYPE_AUDIO,
                 .sample_rate = 8000,
         },
@@ -214,11 +214,11 @@ static struct ast_translator lintoefr = {
                 .sample_rate = 8000,
         },
         .dst_codec = {
-                .name = "gsm_efr",
+                .name = "gsm-efr",
                 .type = AST_MEDIA_TYPE_AUDIO,
                 .sample_rate = 8000,
         },
-        .format = "gsm_efr",
+        .format = "gsm-efr",
         .newpvt = lintoefr_new,
         .framein = lintoefr_framein,
         .frameout = lintoefr_frameout,

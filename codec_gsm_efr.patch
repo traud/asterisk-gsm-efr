@@ -18,7 +18,7 @@
 +}
 +
 +static struct ast_codec gsm_efr = {
-+	.name = "gsm_efr",
++	.name = "gsm-efr",
 +	.description = "GSM-EFR",
 +	.type = AST_MEDIA_TYPE_AUDIO,
 +	.sample_rate = 8000,
@@ -53,18 +53,13 @@
  	ao2_replace(ast_format_g723, NULL);
 @@ -402,2 +409,4 @@
  		ao2_replace(ast_format_testlaw, format);
-+	} else if (!strcmp(name, "gsm_efr")) {
++	} else if (!strcmp(name, "gsm-efr")) {
 +		ao2_replace(ast_format_gsm_efr, format);
  	} else if (!strcmp(name, "g719")) {
 --- main/rtp_engine.c	(Asterisk 13.10.0)
 +++ main/rtp_engine.c	(working copy)
-@@ -2201,2 +2201,4 @@
- 
-+	set_next_mime_type(ast_format_gsm_efr, 0,  "audio", "GSM-EFR", 8000);
-+
-	/* Define the static rtp payload mappings */
-@@ -2244,2 +2246,4 @@
+@@ -2244,2 +2244,4 @@
  	add_static_payload(107, ast_format_opus, 0);
 +
-+	add_static_payload(-1, ast_format_gsm_efr, 0);
++	ast_rtp_engine_load_format(ast_format_gsm_efr);
  
